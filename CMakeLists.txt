@@ -10,6 +10,11 @@ endif()
 
 project(valiant C CXX)
 include("${VITASDK}/share/vita.cmake" REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(libzip REQUIRED IMPORTED_TARGET libzip)
+pkg_check_modules(sndfile REQUIRED IMPORTED_TARGET sndfile)
+pkg_check_modules(vorbisfile REQUIRED IMPORTED_TARGET vorbisfile)
+pkg_check_modules(freetype2 REQUIRED IMPORTED_TARGET freetype2)
 set(VITA_APP_NAME "Valiant Hearts")
 set(VITA_TITLEID  "VALHEARTS")
 set(VITA_MKSFOEX_FLAGS "-d ATTRIBUTE2=12")
@@ -25,8 +30,15 @@ add_executable(valiant
   loader/ctype_patch.c
 )
 
+set_target_properties(valiant PROPERTIES LINKER_LANGUAGE CXX)
+
 target_link_libraries(valiant
-  -Wl,--whole-archive pthread -Wl,--no-whole-archive
+  -pthread
+  -Wl,--start-group
+  PkgConfig::libzip
+  PkgConfig::sndfile
+  PkgConfig::vorbisfile
+  PkgConfig::freetype2
   OpenSLES
   freetype
   png
@@ -71,7 +83,6 @@ target_link_libraries(valiant
   SceFios2_stub
   SceGxm_stub
   SceIme_stub
-  SceLibcBridge_stub
   SceShaccCg_stub
   SceSysmodule_stub
   ScePower_stub
@@ -79,7 +90,8 @@ target_link_libraries(valiant
   SceMotion_stub
   SceHid_stub
   SceVshBridge_stub
-  SceKernelDmacmgr_stub
+  SceKernelDmacMgr_stub
+  -Wl,--end-group
 )
 
 vita_create_self(eboot.bin valiant UNSAFE)
@@ -92,3 +104,5 @@ vita_create_vpk(valiant.vpk ${VITA_TITLEID} eboot.bin
        ${CMAKE_SOURCE_DIR}/livearea/startup.png sce_sys/livearea/contents/startup.png
        ${CMAKE_SOURCE_DIR}/livearea/template.xml sce_sys/livearea/contents/template.xml
 )
+
+set_property(SOURCE loader/so_util.c APPEND PROPERTY COMPILE_OPTIONS -Wno-error=return-mismatch -Wno-error=incompatible-pointer-types)

@@ -1647,7 +1647,7 @@ void *CallObjectMethodV(void *env, void *obj, int methodID, uintptr_t *args) {
 	int lang = -1;
 	switch (methodID) {
 	default:
-		return 0x34343434;
+		return (void *)(uintptr_t)0x34343434;
 	}
 }
 
@@ -1766,7 +1766,7 @@ void *pthread_main(void *arg) {
 	//UAF_InitMobileSDK(fake_env);
 	
 	sceClibPrintf("UAF_InitNativeEngine\n");
-	UAF_InitNativeEngine(fake_env, NULL, "ux0:data/valiant", "ux0:data/valiant", "ux0:data/valiant/main.obb", 1);
+	UAF_InitNativeEngine(fake_env, NULL, "ux0:data/valiant", "ux0:data/valiant", "ux0:data/valiant/main.obb", (void *)(uintptr_t)1);
 	
 	sceClibPrintf("UAF_Init\n");
 	int lang = -1;
